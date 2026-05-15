@@ -74,7 +74,7 @@ class BreadcrumbsViewProvider implements vscode.WebviewViewProvider {
 
   resolveWebviewView(webviewView: vscode.WebviewView) {
     this.view = webviewView;
-    webviewView.webview.options = { enableScripts: true };
+    webviewView.webview.options = { enableScripts: true, localResourceRoots: [] };
     webviewView.webview.html = this.getHtml(webviewView.webview);
 
     webviewView.webview.onDidReceiveMessage((message: WebviewMessage) => {
@@ -110,7 +110,7 @@ class BreadcrumbsViewProvider implements vscode.WebviewViewProvider {
     return {
       type: "state",
       active,
-      history: readHistory(this.context),
+      history: readHistory(this.context).map(({ filePath: _fp, ...rest }) => rest),
       autoExplain: isAutoExplainEnabled(this.context),
       provider: selectedProvider,
       hasApiKey: await hasProviderApiKey(selectedProvider),
@@ -128,9 +128,9 @@ class BreadcrumbsViewProvider implements vscode.WebviewViewProvider {
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <style>
+    <style nonce="${nonce}">
       :root {
         color-scheme: light dark;
       }
@@ -538,7 +538,7 @@ function createCrumbFromEditor(): Crumb | undefined {
     contextLines.push(`${marker} ${line + 1}: ${document.lineAt(line).text}`);
   }
 
-  const selectedText = editor.selection.isEmpty ? "" : document.getText(editor.selection);
+  const selectedText = editor.selection.isEmpty ? "" : document.getText(editor.selection).slice(0, 2000);
   const fileName = document.fileName.split(/[\\/]/).pop() || document.fileName;
 
   return {
@@ -639,12 +639,12 @@ async function generateGeminiExplanation(crumb: Crumb): Promise<ExplanationResul
   }
 
   const model = getConfig("geminiModel", "gemini-2.5-flash");
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
   const result = await postJson<{
     candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
     error?: { message?: string };
   }>(endpoint, {
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
     body: {
       contents: [
         {
@@ -748,7 +748,7 @@ async function postJson<T>(
     if (result.ok || !isRetryableProviderError(result.text) || attempt === 1) {
       return result;
     }
-    await wait(350);
+    await wait(200 + Math.floor(Math.random() * 300));
   }
 
   return result;

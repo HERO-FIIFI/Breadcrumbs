@@ -86,16 +86,20 @@ export async function postJson<T>(
       signal: controller.signal,
     });
     const rawText = await response.text();
-    const data = rawText ? (JSON.parse(rawText) as T & { error?: { message?: string } }) : ({} as T & { error?: { message?: string } });
+    const parsed = parseJsonResponse<T>(rawText);
 
     if (!response.ok) {
       return {
         ok: false,
-        text: data.error?.message || `Provider request failed with HTTP ${response.status}.`,
+        text: parsed.ok && parsed.data.error?.message ? parsed.data.error.message.slice(0, 300) : `Provider request failed with HTTP ${response.status}.`,
       };
     }
 
-    return { ok: true, data };
+    if (!parsed.ok) {
+      return { ok: false, text: "Provider returned invalid JSON." };
+    }
+
+    return { ok: true, data: parsed.data };
   } catch (error) {
     return {
       ok: false,
@@ -108,6 +112,18 @@ export async function postJson<T>(
 
 export function shouldRetryProviderStatus(status: number) {
   return status === 408 || status === 429 || status >= 500;
+}
+
+function parseJsonResponse<T>(rawText: string): JsonResult<T & { error?: { message?: string } }> {
+  if (!rawText) {
+    return { ok: true, data: {} as T & { error?: { message?: string } } };
+  }
+
+  try {
+    return { ok: true, data: JSON.parse(rawText) as T & { error?: { message?: string } } };
+  } catch {
+    return { ok: false, text: "Provider returned invalid JSON." };
+  }
 }
 
 function isCrumb(value: unknown): value is Crumb {

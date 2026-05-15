@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(agent-skills:ship)",
+      "Skill(agent-skills:ship:*)"
+    ]
+  }
+}
