@@ -1,0 +1,90 @@
+<h2>First-Run Empty State</h2>
+<p class="subtitle">How should the setup guide appear when the user first opens Breadcrumbs?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e1e;border-radius:6px;padding:14px;font-family:monospace;font-size:12px;color:#ccc;">
+        <div style="color:#888;font-size:11px;margin-bottom:10px;">Breadcrumbs · Setup</div>
+        <div style="display:grid;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:4px;background:#2a2a2a;">
+            <span style="width:20px;height:20px;border-radius:50%;background:#333;border:2px solid #555;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;flex-shrink:0;">1</span>
+            <div><div style="color:#d4d4d4;font-size:12px;">Choose a provider</div><div style="color:#888;font-size:11px;">Gemini, OpenRouter, Groq, or editor</div></div>
+            <button style="margin-left:auto;font-size:11px;padding:3px 8px;background:#0e639c;border:none;border-radius:3px;color:#fff;cursor:pointer;">Choose</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:4px;background:#2a2a2a;opacity:0.5;">
+            <span style="width:20px;height:20px;border-radius:50%;background:#333;border:2px solid #555;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;flex-shrink:0;">2</span>
+            <div><div style="color:#d4d4d4;font-size:12px;">Connect your API key</div><div style="color:#888;font-size:11px;">Stored securely in SecretStorage</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:4px;background:#2a2a2a;opacity:0.35;">
+            <span style="width:20px;height:20px;border-radius:50%;background:#333;border:2px solid #555;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;flex-shrink:0;">3</span>
+            <div><div style="color:#d4d4d4;font-size:12px;">Open a code file</div><div style="color:#888;font-size:11px;">Any file in your workspace</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:4px;background:#2a2a2a;opacity:0.2;">
+            <span style="width:20px;height:20px;border-radius:50%;background:#333;border:2px solid #555;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;flex-shrink:0;">4</span>
+            <div><div style="color:#d4d4d4;font-size:12px;">Move cursor or click Explain</div><div style="color:#888;font-size:11px;">Breadcrumbs will explain each line</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Progressive Checklist</h3>
+      <p>Steps become active one at a time as previous ones complete. Dimmed future steps reduce cognitive load. The active step shows an action button.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e1e;border-radius:6px;padding:14px;font-family:monospace;font-size:12px;color:#ccc;">
+        <div style="color:#888;font-size:11px;margin-bottom:10px;">Breadcrumbs · Trail</div>
+        <div style="border:1px dashed #444;border-radius:6px;padding:16px;text-align:center;color:#888;">
+          <div style="font-size:20px;margin-bottom:8px;">👋</div>
+          <div style="color:#d4d4d4;font-size:13px;margin-bottom:6px;">Welcome to Breadcrumbs</div>
+          <div style="color:#888;font-size:11px;line-height:1.6;">
+            1. <span style="color:#0e90d2;cursor:pointer;">Choose provider</span> &amp; connect key<br>
+            2. Open any code file<br>
+            3. Move your cursor — explanations appear here
+          </div>
+          <button style="margin-top:10px;font-size:11px;padding:4px 12px;background:#0e639c;border:none;border-radius:3px;color:#fff;cursor:pointer;">Set up now →</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Compact Welcome Card</h3>
+      <p>A single card that replaces the empty trail. Collapsed, non-intrusive. A single "Set up now" button triggers the provider selection flow. Disappears once a crumb arrives.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#1e1e1e;border-radius:6px;padding:14px;font-family:monospace;font-size:12px;color:#ccc;">
+        <div style="color:#888;font-size:11px;margin-bottom:6px;">Breadcrumbs · Trail</div>
+        <div style="display:grid;gap:8px;">
+          <div style="padding:8px 10px;border-radius:4px;background:#2a2a2a;border-left:3px solid #0e639c;">
+            <div style="color:#0e90d2;font-size:11px;">Step 1 of 4</div>
+            <div style="color:#d4d4d4;font-size:12px;margin:2px 0;">Choose an AI provider</div>
+            <div style="color:#888;font-size:10px;margin-bottom:6px;">Gemini is recommended for new users — free tier with generous limits.</div>
+            <div style="display:flex;gap:6px;">
+              <button style="font-size:10px;padding:3px 8px;background:#0e639c;border:none;border-radius:3px;color:#fff;">Gemini</button>
+              <button style="font-size:10px;padding:3px 8px;background:#333;border:1px solid #555;border-radius:3px;color:#ccc;">Other…</button>
+            </div>
+          </div>
+          <div style="opacity:0.3;padding:8px 10px;border-radius:4px;background:#2a2a2a;border-left:3px solid #444;">
+            <div style="color:#888;font-size:11px;">Step 2 of 4 · Connect key</div>
+          </div>
+          <div style="opacity:0.2;padding:8px 10px;border-radius:4px;background:#2a2a2a;border-left:3px solid #444;">
+            <div style="color:#888;font-size:11px;">Step 3 of 4 · Open a file</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Inline Wizard</h3>
+      <p>Replaces the trail section with a step-by-step wizard. Each step expands with context and actions. More guidance but takes up more vertical space.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;">Click a card to select it, then tell me in the terminal.</p>

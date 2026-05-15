@@ -1,0 +1,15 @@
+.vscode/**
+.vscode-test/**
+.superpowers/**
+.gitignore
+node_modules/**
+src/**
+test/**
+dist/test/**
+dist/extension.js
+dist/extension.js.map
+**/*.map
+tsconfig.json
+index.html
+styles.css
+app.js

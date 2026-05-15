@@ -1,0 +1,195 @@
+{
+  "name": "breadcrumbs",
+  "displayName": "Breadcrumbs",
+  "description": "A VS Code and Cursor sidebar that follows your cursor and explains code line by line.",
+  "version": "0.0.6",
+  "publisher": "breadcrumbs-labs",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other",
+    "Machine Learning"
+  ],
+  "keywords": [
+    "ai",
+    "cursor",
+    "code explanation",
+    "gemini",
+    "openrouter",
+    "groq",
+    "sidebar"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/breadcrumbs-labs/breadcrumbs.git"
+  },
+  "galleryBanner": {
+    "color": "#17201b",
+    "theme": "dark"
+  },
+  "activationEvents": [
+    "onView:breadcrumbs.trailView",
+    "onCommand:breadcrumbs.open",
+    "onCommand:breadcrumbs.explainCurrentLine",
+    "onCommand:breadcrumbs.toggleAutoExplain",
+    "onCommand:breadcrumbs.clearHistory",
+    "onCommand:breadcrumbs.setApiKey",
+    "onCommand:breadcrumbs.clearApiKey",
+    "onCommand:breadcrumbs.selectProvider"
+  ],
+  "main": "./dist/src/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "breadcrumbs.open",
+        "title": "Breadcrumbs: Open",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "breadcrumbs.explainCurrentLine",
+        "title": "Breadcrumbs: Explain Current Line"
+      },
+      {
+        "command": "breadcrumbs.toggleAutoExplain",
+        "title": "Breadcrumbs: Toggle Auto Explain"
+      },
+      {
+        "command": "breadcrumbs.clearHistory",
+        "title": "Breadcrumbs: Clear Trail"
+      },
+      {
+        "command": "breadcrumbs.setApiKey",
+        "title": "Breadcrumbs: Set Provider API Key"
+      },
+      {
+        "command": "breadcrumbs.clearApiKey",
+        "title": "Breadcrumbs: Clear Provider API Key"
+      },
+      {
+        "command": "breadcrumbs.selectProvider",
+        "title": "Breadcrumbs: Select AI Provider"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "breadcrumbs.open",
+          "group": "navigation@9",
+          "when": "editorTextFocus"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Breadcrumbs",
+      "properties": {
+        "breadcrumbs.autoExplain": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically explain the current line after the cursor settles."
+        },
+        "breadcrumbs.provider": {
+          "type": "string",
+          "default": "gemini",
+          "enum": [
+            "gemini",
+            "openrouter",
+            "groq",
+            "editor"
+          ],
+          "enumDescriptions": [
+            "Use Google Gemini API with a user-provided API key.",
+            "Use OpenRouter chat completions with a user-provided API key.",
+            "Use Groq chat completions with a user-provided API key.",
+            "Use the host editor's VS Code Language Model API."
+          ],
+          "description": "AI provider used to explain code."
+        },
+        "breadcrumbs.geminiModel": {
+          "type": "string",
+          "default": "gemini-2.5-flash",
+          "description": "Gemini model for direct API explanations."
+        },
+        "breadcrumbs.openRouterModel": {
+          "type": "string",
+          "default": "google/gemma-3-27b-it:free",
+          "description": "OpenRouter model ID. Free variants usually end with :free."
+        },
+        "breadcrumbs.groqModel": {
+          "type": "string",
+          "default": "llama-3.1-8b-instant",
+          "description": "Groq model ID for direct API explanations."
+        },
+        "breadcrumbs.maxOutputTokens": {
+          "type": "number",
+          "default": 180,
+          "minimum": 40,
+          "maximum": 800,
+          "description": "Maximum tokens to request from direct API providers."
+        },
+        "breadcrumbs.providerTimeoutMs": {
+          "type": "number",
+          "default": 12000,
+          "minimum": 1000,
+          "maximum": 60000,
+          "description": "Timeout for direct provider API requests."
+        },
+        "breadcrumbs.debounceMs": {
+          "type": "number",
+          "default": 650,
+          "minimum": 150,
+          "maximum": 5000,
+          "description": "Milliseconds to wait after cursor movement before explaining a line."
+        },
+        "breadcrumbs.contextRadius": {
+          "type": "number",
+          "default": 8,
+          "minimum": 0,
+          "maximum": 40,
+          "description": "Number of surrounding lines to include in the explanation prompt."
+        },
+        "breadcrumbs.maxHistory": {
+          "type": "number",
+          "default": 80,
+          "minimum": 5,
+          "maximum": 500,
+          "description": "Maximum number of line visits to keep in the trail."
+        }
+      }
+    },
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "breadcrumbsPanel",
+          "title": "Breadcrumbs",
+          "icon": "media/breadcrumbs.svg"
+        }
+      ]
+    },
+    "views": {
+      "breadcrumbsPanel": [
+        {
+          "id": "breadcrumbs.trailView",
+          "name": "Trail"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "npm run compile && node --test dist/test/core.test.js",
+    "test:unit": "npm run compile && node --test dist/test/core.test.js",
+    "test:smoke": "npm run compile && node dist/test/run-extension-smoke.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.90.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.0.0",
+    "typescript": "^5.4.5"
+  }
+}
