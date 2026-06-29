@@ -208,10 +208,16 @@ describe("postJson", () => {
   });
 
   it("returns an error when the request times out", async () => {
-    const fetchFn: FetchLike = () => new Promise(() => {});
+    const fetchFn: FetchLike = (_input, init) =>
+      new Promise((_, reject) => {
+        init.signal?.addEventListener("abort", () => {
+          reject(new Error("aborted"));
+        });
+      });
 
     const result = await postJson(endpoint, { ...request, fetchFn, timeoutMs: 1 });
 
     assert.equal(result.ok, false);
+    assert.match(result.text, /aborted|timeout/i);
   });
 });
