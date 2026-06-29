@@ -270,6 +270,10 @@ class BreadcrumbsViewProvider implements vscode.WebviewViewProvider {
         border-color: var(--vscode-testing-iconQueued);
       }
 
+      .explanation.error {
+        color: var(--vscode-errorForeground);
+      }
+
       .history {
         display: grid;
         gap: 8px;
@@ -396,6 +400,7 @@ class BreadcrumbsViewProvider implements vscode.WebviewViewProvider {
         if (active) {
           activeLine.textContent = active.lineText || "(blank line)";
           activeExplanation.textContent = active.explanation || labelForStatus(active.status);
+          activeExplanation.classList.toggle("error", active.status === "error");
           activeMeta.replaceChildren(
             pill(active.fileName),
             pill("line " + active.lineNumber),
@@ -430,6 +435,7 @@ class BreadcrumbsViewProvider implements vscode.WebviewViewProvider {
 
           const explanation = document.createElement("p");
           explanation.className = "explanation";
+          explanation.classList.toggle("error", crumb.status === "error");
           explanation.textContent = crumb.explanation || labelForStatus(crumb.status);
 
           card.append(head, text, explanation);
