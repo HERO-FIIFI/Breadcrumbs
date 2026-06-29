@@ -22,6 +22,7 @@ const SECRET_KEYS: Record<Exclude<ProviderId, "editor">, string> = {
 
 let provider: BreadcrumbsViewProvider;
 let extensionContext: vscode.ExtensionContext;
+let logChannel: vscode.OutputChannel;
 let debounceTimer: NodeJS.Timeout | undefined;
 let lastSelectionKey = "";
 // Incremented on each explanation attempt; lets async completions detect stale UI updates.
@@ -29,6 +30,7 @@ let explanationRun = 0;
 
 export function activate(context: vscode.ExtensionContext) {
   extensionContext = context;
+  logChannel = vscode.window.createOutputChannel("Breadcrumbs");
   provider = new BreadcrumbsViewProvider(context);
 
   context.subscriptions.push(
@@ -516,6 +518,10 @@ async function explainCurrentLine(context: vscode.ExtensionContext, forceExplain
 
   const explanation = await generateExplanation(loadingCrumb);
   const readyCrumb = completeCrumb(loadingCrumb, explanation);
+
+  if (!explanation.ok) {
+    logChannel.appendLine(`[Error] ${explanation.text}`);
+  }
 
   if (runId !== explanationRun) {
     await persistCrumb(context, readyCrumb);

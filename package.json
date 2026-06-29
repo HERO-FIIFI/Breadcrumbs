@@ -2,7 +2,7 @@
   "name": "breadcrumbs",
   "displayName": "Breadcrumbs",
   "description": "A VS Code and Cursor sidebar that follows your cursor and explains code line by line.",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "publisher": "breadcrumbs-labs",
   "license": "MIT",
   "engines": {

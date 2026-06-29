@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.0.7
+
+- Added GitHub Actions CI workflow to run unit tests automatically.
+- Fixed a packaging issue where the extension bundle was excluded in `.vscodeignore`.
+- Added a "Breadcrumbs" OutputChannel for better error logging and diagnostics.
+- Improved Webview error UI with theme-aware error styling.
+- Fixed a reliability issue in the timeout unit tests.
+
 ## 0.0.6
 
 - Moved Breadcrumbs out of the left Activity Bar and into the Panel.
