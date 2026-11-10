@@ -32,4 +32,10 @@ describe("extension smoke test harness", () => {
     assert.match(launcher, /mkdtempSync/);
     assert.match(launcher, /reuseMachineInstall: true/);
   });
+
+  it("declares the bundled Anime.js motion runtime", () => {
+    const packageManifest = readFileSync(path.resolve(process.cwd(), "package.json"), "utf8");
+
+    assert.match(packageManifest, /"animejs"/);
+  });
 });

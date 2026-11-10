@@ -74,7 +74,10 @@ class BreadcrumbsViewProvider implements vscode.WebviewViewProvider {
 
   resolveWebviewView(webviewView: vscode.WebviewView) {
     this.view = webviewView;
-    webviewView.webview.options = { enableScripts: true, localResourceRoots: [] };
+    webviewView.webview.options = {
+      enableScripts: true,
+      localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, "node_modules", "animejs")],
+    };
     webviewView.webview.html = this.getHtml(webviewView.webview);
 
     webviewView.webview.onDidReceiveMessage((message: WebviewMessage) => {
@@ -123,12 +126,15 @@ class BreadcrumbsViewProvider implements vscode.WebviewViewProvider {
 
   private getHtml(webview: vscode.Webview) {
     const nonce = getNonce();
+    const animeUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this.context.extensionUri, "node_modules", "animejs", "lib", "anime.min.js"),
+    );
 
     return /* html */ `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}' ${webview.cspSource};" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style nonce="${nonce}">
       :root {
@@ -155,6 +161,16 @@ class BreadcrumbsViewProvider implements vscode.WebviewViewProvider {
         background: var(--vscode-button-background);
         font: inherit;
         cursor: pointer;
+        transition: transform 140ms ease, background 140ms ease;
+      }
+
+      button:hover:not(:disabled) {
+        transform: translateY(-1px);
+      }
+
+      button:focus-visible {
+        outline: 2px solid var(--vscode-focusBorder);
+        outline-offset: 2px;
       }
 
       button.secondary {
@@ -205,6 +221,7 @@ class BreadcrumbsViewProvider implements vscode.WebviewViewProvider {
 
       .status.on {
         background: var(--vscode-testing-iconPassed);
+        box-shadow: 0 2px 8px color-mix(in srgb, var(--vscode-testing-iconPassed) 52%, transparent);
       }
 
       .card {
@@ -212,6 +229,7 @@ class BreadcrumbsViewProvider implements vscode.WebviewViewProvider {
         border-radius: 6px;
         padding: 12px;
         background: var(--vscode-editor-background);
+        transform: translateZ(0);
       }
 
       .setup {
@@ -301,6 +319,33 @@ class BreadcrumbsViewProvider implements vscode.WebviewViewProvider {
         line-height: 1.5;
         text-align: center;
       }
+
+      .empty::before {
+        content: "";
+        display: block;
+        width: 26px;
+        height: 26px;
+        margin: 0 auto 10px;
+        border: 2px solid var(--vscode-focusBorder);
+        border-radius: 50%;
+        box-shadow: inset 0 0 0 5px var(--vscode-editor-background);
+      }
+
+      .trail-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      .trail-count {
+        color: var(--vscode-descriptionForeground);
+        font-size: 11px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { transition-duration: 0.01ms !important; }
+      }
     </style>
   </head>
   <body>
@@ -338,16 +383,17 @@ class BreadcrumbsViewProvider implements vscode.WebviewViewProvider {
       <section class="card" id="activeCard">
         <p class="small">Current line</p>
         <p class="line" id="activeLine">Move your cursor inside a code file.</p>
-        <p class="explanation" id="activeExplanation"></p>
+        <p class="explanation" id="activeExplanation" aria-live="polite"></p>
         <div class="meta" id="activeMeta"></div>
       </section>
 
       <section>
-        <p class="small">Trail</p>
+        <div class="trail-title"><p class="small">Trail</p><span class="trail-count" id="trailCount">0 moments</span></div>
         <div class="history" id="history"></div>
       </section>
     </main>
 
+    <script nonce="${nonce}" src="${animeUri}"></script>
     <script nonce="${nonce}">
       const vscode = acquireVsCodeApi();
       const explainButton = document.querySelector("#explainButton");
@@ -365,6 +411,8 @@ class BreadcrumbsViewProvider implements vscode.WebviewViewProvider {
       const activeExplanation = document.querySelector("#activeExplanation");
       const activeMeta = document.querySelector("#activeMeta");
       const history = document.querySelector("#history");
+      const trailCount = document.querySelector("#trailCount");
+      const motionAllowed = !window.matchMedia("(prefers-reduced-motion: reduce)").matches && typeof anime === "function";
 
       explainButton.addEventListener("click", () => vscode.postMessage({ type: "explainCurrent" }));
       toggleButton.addEventListener("click", () => vscode.postMessage({ type: "toggleAutoExplain" }));
@@ -392,6 +440,7 @@ class BreadcrumbsViewProvider implements vscode.WebviewViewProvider {
         connectionStatus.classList.toggle("missing", state.provider !== "editor" && !state.hasApiKey);
         connectionHelp.textContent = helpText(state.provider, state.hasApiKey);
         statusDot.classList.toggle("on", state.autoExplain);
+        trailCount.textContent = state.history.length + (state.history.length === 1 ? " moment" : " moments");
 
         if (active) {
           activeLine.textContent = active.lineText || "(blank line)";
@@ -435,6 +484,23 @@ class BreadcrumbsViewProvider implements vscode.WebviewViewProvider {
           card.append(head, text, explanation);
           return card;
         }));
+
+        animateState(Boolean(active), state.history.length);
+      }
+
+      function animateState(hasActive, historyCount) {
+        if (!motionAllowed) return;
+        const targets = [];
+        if (hasActive) targets.push("#activeCard");
+        if (targets.length) {
+          anime.remove(targets);
+          anime({ targets, translateY: [5, 0], opacity: [0.78, 1], duration: 280, easing: "easeOutCubic" });
+        }
+        if (historyCount) {
+          anime({ targets: ".crumb", translateX: [-7, 0], opacity: [0, 1], delay: anime.stagger(36, { from: "last" }), duration: 240, easing: "easeOutCubic" });
+        } else {
+          anime({ targets: ".empty", scale: [0.96, 1], opacity: [0, 1], duration: 260, easing: "easeOutCubic" });
+        }
       }
 
       function pill(text) {
